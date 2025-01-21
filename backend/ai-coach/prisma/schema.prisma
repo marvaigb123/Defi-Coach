@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  avatar    String?
+  wallet    String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  progress      Progress[]
+  achievements  Achievement[]
+  sessions      CoachingSession[]
+  feedback      Feedback[]
+  notifications Notification[]
+}
+
+model Progress {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  description String
+  progress    Int
+  createdAt   DateTime @default(now())
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Achievement {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  title       String // Achievement title
+  description String // Details about the achievement
+  earnedAt    DateTime @default(now())
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id])
+}
+
+model CoachingSession {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  sessionType String
+  status      String // E.g., "completed", "ongoing"
+  startedAt   DateTime  @default(now())
+  endedAt     DateTime?
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  feedback  String // Feedback text
+  createdAt DateTime @default(now())
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String // Notification title
+  message   String // Details about the notification
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id])
+}
